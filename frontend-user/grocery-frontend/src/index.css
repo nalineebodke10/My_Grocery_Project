@@ -1,0 +1,64 @@
+/* SWIPER ARROWS SAME AS THYMELEAF */
+
+body{
+  background-color: #eefbf8;
+}
+
+.bannerSwiper .swiper-button-next,
+.bannerSwiper .swiper-button-prev {
+  width: 30px !important;
+  height: 30px !important;
+  background: #2bd891;
+  top: 45% !important;
+  border-radius: 50%;
+}
+
+.bannerSwiper .swiper-button-next::after,
+.bannerSwiper .swiper-button-prev::after {
+  font-size: 12px !important;
+  color: white;
+}
+
+
+:root {
+  --swiper-navigation-size: 12px;
+}
+
+.swiper-button-next,
+.swiper-button-prev {
+   width: 30px !important;
+  height: 30px !important;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0cc5b7 0%, #2bd891 100%);
+  color: white !important;
+  top: 45% !important;
+}
+
+.swiper-button-next::after,
+.swiper-button-prev::after {
+  font-size: 10px !important;
+}
+
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Bootstrap container padding remove */
+.container,
+.container-fluid {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

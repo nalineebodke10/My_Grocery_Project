@@ -1,0 +1,39 @@
+.contact-hero{
+height:250px;
+background:
+linear-gradient(rgba(0,0,0,0.5),rgba(0,0,0,0.5)),
+url('https://img.freepik.com/free-photo/flat-lay-desk-concept-with-copy-space_23-2148459750.jpg')
+center/cover no-repeat;
+}
+
+.info-card{
+background:#fff;
+border-radius:12px;
+transition:transform 0.3s ease,box-shadow 0.3s ease;
+}
+
+.info-card:hover{
+transform:translateY(-6px);
+box-shadow:0 10px 20px rgba(0,0,0,0.15);
+}
+
+.contact-form{
+border-radius:12px;
+background:#ffffff;
+}
+
+.contact-form input,
+.contact-form textarea{
+border-radius:8px;
+border:1px solid #ddd;
+}
+
+.contact-form input:focus,
+.contact-form textarea:focus{
+border-color:#ff5e62;
+box-shadow:0 0 6px rgba(255,94,98,0.3);
+}
+
+.object-fit-cover{
+object-fit:cover;
+}
