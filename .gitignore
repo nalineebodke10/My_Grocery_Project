@@ -1,0 +1,14 @@
+# Java
+target/
+*.log
+*.class
+
+# STS
+.project
+.settings
+.classpath
+
+# Node
+node_modules/
+dist/
+.env
