@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.http.ResponseEntity;
 
 import java.io.File;
 import java.io.IOException;
@@ -233,20 +234,26 @@ public class adminController {
 
     // ---------------- ADMIN LOGIN ----------------
     @PostMapping("/login")
-    public admin processLogin(@RequestBody admin a,
-                              HttpServletRequest request){
+    public ResponseEntity<?> processLogin(@RequestBody admin a,
+                                          HttpServletRequest request){
 
-        admin admin=adminRepo
+        admin adminUser=adminRepo
         .findByUsernameAndPassword(
         a.getUsername(),
         a.getPassword());
 
-        if(admin!=null){
+        if(adminUser!=null){
+
             request.getSession()
-            .setAttribute("adminUser",admin);
-            return admin;
+            .setAttribute("adminUser",adminUser);
+
+            return ResponseEntity.ok(adminUser);
         }
-        return null;
+        else{
+            return ResponseEntity
+                   .status(401)
+                   .body("Invalid Username or Password");
+        }
     }
 
     // ---------------- LOGOUT ----------------
