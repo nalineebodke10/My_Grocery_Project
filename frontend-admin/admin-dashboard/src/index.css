@@ -1,0 +1,25 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Infant:wght@300;400;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family: 'Cormorant Infant', serif;
+}
+.swal2-confirm {
+  padding: 10px 24px !important;
+  background: #d33 !important;
+  color: white !important;
+  border-radius: 6px !important;
+}
+
+.swal2-cancel {
+  padding: 10px 24px !important;
+  background:#0cc5b7 !important;
+  color: white !important;
+  border-radius: 6px !important;
+}
