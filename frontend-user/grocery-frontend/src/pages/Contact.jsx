@@ -19,32 +19,33 @@ function Contact() {
   };
 
   const handleSubmit = (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    axios
-      .post("http://localhost:8083/api/contact", form)
-      .then(() => {
-        setSuccessMsg("Message Sent Successfully!");
-        setErrorMsg("");
-        setForm({ name: "", email: "", message: "" });
-      })
-      .catch(() => {
-        setErrorMsg("Error Sending Message!");
-        setSuccessMsg("");
-      });
-  };
+  console.log("FORM DATA 👉", form);   // 👈 add this
+
+  axios.post("/api/contact", form)
+    .then((res) => {
+      console.log("SUCCESS 👉", res.data);
+      setSuccessMsg("Message Sent Successfully!");
+    })
+    .catch((err) => {
+      console.log("ERROR 👉", err);
+      setErrorMsg("Error Sending Message!");
+    });
+};
+
 
   return (
     <>
       <UserNavbar />
 
-      <div className="contact-hero text-center text-white d-flex align-items-center justify-content-center">
+      <div className="contact-hero relative z-0 flex items-center justify-center text-white">
         <h1 className="text-white fw-bold pt-[5%]" style={{ fontSize: "40px" }}>
           Get in Touch With Us
         </h1>
       </div>
 
-      <div className="container py-2 w-[120%] mx-auto flex flex-col items-center justify-center">
+      <div className="container py-2 w-[120%] mx-auto flex flex-col items-center justify-center relative z-10">
         <div className="mt-5 px-5">
           <div className="grid grid-cols-4 gap-5 ml-[8%] w-[110%]">
             <div className="shadow text-center p-6 rounded-xl bg-white">

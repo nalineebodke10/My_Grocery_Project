@@ -1,8 +1,39 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link,useNavigate } from "react-router-dom";
+import axios from "../axiosConfig";
 
 function UserNavbar() {
   const navigate = useNavigate();
+const [cartCount, setCartCount] = useState(0);
+
+
+useEffect(() => {
+  fetchCartCount();
+
+  const handleUpdate = () => {
+    fetchCartCount();
+  };
+
+  window.addEventListener("cartUpdated", handleUpdate);
+
+  return () => {
+    window.removeEventListener("cartUpdated", handleUpdate);
+  };
+}, []);
+
+
+const fetchCartCount = () => {
+  axios.get("/api/user/cart").then((res) => {
+    if (res.data) {
+      const totalQty = res.data.reduce(
+        (sum, item) => sum + item.quantity,
+        0
+      );
+      setCartCount(totalQty);
+    }
+  });
+};
+
   return (
     <div className="p-0 m-0">
       {/* TOP HEADER */}
@@ -82,6 +113,7 @@ function UserNavbar() {
                 borderRadius: "100%",
                 padding: "13px",
               }}
+              onClick={() => navigate("/cart")}
             >
               <i className="fa-solid fa-cart-shopping text-dark text-l"></i>
             </div>
@@ -100,7 +132,7 @@ function UserNavbar() {
                 fontWeight: "bold",
               }}
             >
-              0
+              {cartCount}
             </span>
           </Link>
 

@@ -23,7 +23,7 @@ function Home() {
       .then((res) => setCategories(res.data));
 
     axios
-      .get("http://localhost:8083/api/user/home", { withCredentials: true })
+      .get("/api/user/home", { withCredentials: true })
       .then((res) => {
         const updated = res.data.map((item) => ({
           ...item,
@@ -48,29 +48,38 @@ function Home() {
     }
   };
 
-  const addToCart = (id, qty) => {
-    axios
-      .post(`/api/user/addToCart?groceryId=${id}&quantity=${qty}`)
-      .then((res) => {
-        Swal.fire({
-          icon: "success",
-          title: "Added to Cart!",
-          timer: 1500,
-          showConfirmButton: false,
-        });
-      })
-      .catch((err) => {
-        // Agar backend se 401 Unauthorized aata hai
-        Swal.fire({
-          icon: "warning",
-          title: "Login Required!",
-          text: "Please login to add items",
-          confirmButtonColor: "#ff5e62",
-        }).then(() => {
-          navigate("/login");
-        });
+ const addToCart = async (id, qty) => {
+  try {
+    await axios.post(`/api/user/addToCart?groceryId=${id}&quantity=${qty}`);
+
+    Swal.fire({
+      icon: "success",
+      title: "Added to Cart!",
+      timer: 1500,
+      showConfirmButton: false,
+    });
+
+    // ⭐ Navbar ko update signal
+    window.dispatchEvent(new Event("cartUpdated"));
+
+  } catch (err) {
+    if (err.response && err.response.status === 401) {
+      Swal.fire({
+        icon: "warning",
+        title: "Login Required!",
+        text: "Please login to add items",
+        confirmButtonColor: "#ff5e62",
+      }).then(() => {
+        navigate("/login");
       });
-  };
+    } else {
+      Swal.fire({
+        icon: "error",
+        title: "Something went wrong!",
+      });
+    }
+  }
+};
 
   return (
     <div className="bg-white">
@@ -102,6 +111,7 @@ function Home() {
                     padding: "17px",
                     transition: "transform 0.3s ease",
                   }}
+                  onClick={() => navigate(`/category/${cat.id}`)}
                   onMouseEnter={(e) =>
                     (e.currentTarget.style.transform = "scale(1.1)")
                   }

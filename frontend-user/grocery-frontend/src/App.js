@@ -8,6 +8,8 @@ import Shop from "./pages/Shop";
 import Order from "./pages/Order";
 import Contact from "./pages/Contact";
 import AuthPage from "./pages/AuthPage";
+import Cart from "./pages/Cart";
+import CategoryItems from "./pages/CategoryItems";
 
 function App() {
   return (
@@ -24,7 +26,8 @@ function App() {
         <Route path="/order" element={<Order />} />
         <Route path="/contact" element={<Contact />} />
        <Route path="/login" element={<AuthPage/>}/>
-        
+        <Route path="/cart" element={<Cart />} />
+        <Route path="/category/:id" element={<CategoryItems />} />
       </Routes>
     </Router>
   );
