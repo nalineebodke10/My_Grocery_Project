@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Sidebar from "../components/sidebar";
 import axios from "axios";
+import Swal from 'sweetalert2'
 import {
  FaList,
  FaShoppingCart,
@@ -22,15 +23,39 @@ function Dashboard() {
     axios.get("http://localhost:8083/api/admin/groceries")
       .then(res => setGroceries(res.data));
 
-    axios.get("http://localhost:8083/api/admin/orders")
-      .then(res => setOrders(res.data.orders));
+    // ⭐ FINAL FIX HERE
+    axios.get("http://localhost:8083/api/admin/pendingOrders",{
+      withCredentials:true
+    })
+    .then(res => {
+  setOrders(res.data);
+});
 
   }, []);
 
-  const confirmOrder = (id) => {
-    axios.post("http://localhost:8083/api/admin/confirmOrder?id="+id)
-      .then(() => window.location.reload());
-  };
+ const confirmOrder = (id) => {
+
+  axios.post(
+    "http://localhost:8083/api/admin/confirmOrder?id="+id,
+    {},
+    {withCredentials:true}
+  )
+  .then(()=>{
+
+  setOrders(prev =>
+    prev.filter(order => order.id !== id)
+  );
+
+  Swal.fire({
+    title: 'Order Accepted!',
+    text: 'See this order in Orders Page',
+    icon: 'success',
+    confirmButtonText: 'OK'
+  });
+
+})
+
+}
 
   return (
     <div className="flex">
@@ -39,12 +64,10 @@ function Dashboard() {
 
       <div className="ml-[250px] w-full bg-white min-h-screen p-8">
 
-        {/* Navbar */}
         <nav className="bg-white border shadow rounded-lg px-5 py-4 mb-10 h-[80px] flex items-center justify-between">
           <h5 className="text-[1.2rem]">Admin Dashboard</h5>
         </nav>
 
-        {/* Stats */}
         <div className="grid grid-cols-4 gap-6 mb-10">
 
           <div className="flex justify-between items-center p-5 rounded-xl shadow">
@@ -66,7 +89,7 @@ function Dashboard() {
           <div className="flex justify-between items-center p-5 rounded-xl shadow">
             <div>
               <h5>Total Orders</h5>
-              <p>{orders.length}</p>
+              <p>{orders ? orders.length : 0}</p>
             </div>
             <FaBox className="text-[#0cc5b7] text-[26px]" />
           </div>
@@ -81,7 +104,6 @@ function Dashboard() {
 
         </div>
 
-        {/* Pending Orders */}
         <div className="shadow p-5 rounded-xl">
 
           <h3 className="text-[1.4rem] mb-4">
@@ -102,7 +124,7 @@ function Dashboard() {
             </thead>
 
             <tbody className="text-[1.1rem]">
-              {orders.map((order, index) => (
+             {Array.isArray(orders) && orders.map((order, index) => (
 
                 <tr key={order.id} className="bg-gray-50 h-[60px] shadow-sm rounded-lg">
 
@@ -120,8 +142,8 @@ function Dashboard() {
                   <td>
                     <button
                       onClick={()=>confirmOrder(order.id)}
-                     className="text-white px-4 py-[4px] rounded-md text-[13px]"style={{background:"linear-gradient(135deg,#ff934b,#ff5e62)"
-}}
+                      className="text-white px-4 py-[4px] rounded-md text-[13px]"
+                      style={{background:"linear-gradient(135deg,#ff934b,#ff5e62)"}}
                     >
                       Accept
                     </button>

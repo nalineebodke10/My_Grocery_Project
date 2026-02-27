@@ -1,7 +1,7 @@
 package com.Grocery.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
-import jakarta.persistence.criteria.Order;
 
 @Entity
 public class orderItem {
@@ -15,7 +15,9 @@ public class orderItem {
     @ManyToOne
     @JoinColumn(name = "grocery_item_id")
     private grocery groceryItem;
-    
+
+    // ⭐ VERY IMPORTANT (STOP INFINITE LOOP)
+    @JsonBackReference
     @ManyToOne
     @JoinColumn(name = "order_id")
     private order order;
@@ -46,15 +48,11 @@ public class orderItem {
         this.groceryItem = groceryItem;
     }
 
-	public order getOrder() {
-		return order;
-	}
+    public order getOrder() {
+        return order;
+    }
 
-	public void setOrder(order order) {
-		this.order = order;
-	}
-
-	
-
-  
+    public void setOrder(order order) {
+        this.order = order;
+    }
 }

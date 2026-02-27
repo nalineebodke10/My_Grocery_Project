@@ -1,5 +1,7 @@
 package com.Grocery.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.List;
@@ -16,17 +18,22 @@ public class order {
     private String customerName;
     private LocalDate date;
     private String status;
+
+    // ⭐ VERY IMPORTANT (STOP USER LOOP)
+    @JsonIgnore
     @ManyToOne
-    @JoinColumn(name = "user_id") // FK reference to user table
+    @JoinColumn(name = "user_id")
     private user user;
-    
+
     private double totalAmount;  
 
-    
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    // ⭐ VERY IMPORTANT (STOP ORDER-ITEM LOOP)
+    @JsonManagedReference
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<orderItem> orderItems;
 
     // --- Getters & Setters ---
+
     public Long getId() {
         return id;
     }
@@ -50,16 +57,9 @@ public class order {
     public void setCustomerName(String customerName) {
         this.customerName = customerName;
     }
+
     public LocalDate getDate() {
         return date;
-    }
-    
-    public user getUser() {
-        return user;
-    }
-
-    public void setUser(user user) {
-        this.user = user;
     }
 
     public void setDate(LocalDate date) {
@@ -74,11 +74,19 @@ public class order {
         this.status = status;
     }
 
-    public double getTotalAmount() {    // ✅ added getter
+    public user getUser() {
+        return user;
+    }
+
+    public void setUser(user user) {
+        this.user = user;
+    }
+
+    public double getTotalAmount() {
         return totalAmount;
     }
 
-    public void setTotalAmount(double totalAmount) {   // ✅ added setter
+    public void setTotalAmount(double totalAmount) {
         this.totalAmount = totalAmount;
     }
 

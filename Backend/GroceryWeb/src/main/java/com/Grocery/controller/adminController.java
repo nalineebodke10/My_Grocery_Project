@@ -15,6 +15,9 @@ import java.nio.file.*;
 import java.time.LocalDate;
 import java.util.*;
 
+import java.time.LocalDate;
+import java.util.Comparator;
+
 @RestController
 @RequestMapping("/api/admin")
 public class adminController {
@@ -59,15 +62,58 @@ public class adminController {
                 Path filePath=Paths.get(uploadDir+fileName);
                 Files.write(filePath,imageFile.getBytes());
 
+                String imageUrl = "http://localhost:8083/uploads/categories/" + fileName;
+
                 category cat=new category();
                 cat.setName(name);
-                cat.setImage(fileName);
+                cat.setImage(imageUrl);   // ✅ CHANGED
+                cat.setCreatedDate(LocalDate.now()); // ✅ ADD THIS
                 categoryRepo.save(cat);
             }
         }catch(IOException e){
             e.printStackTrace();
         }
         return "SAVED";
+    }
+    
+ // ---------------- CATEGORY UPDATE ----------------
+    @PostMapping("/category/update")
+    public String updateCategory(@RequestParam Long id,
+                                 @RequestParam String name,
+                                 @RequestParam(required=false) MultipartFile imageFile){
+
+        try{
+
+            category existing = categoryRepo.findById(id).orElse(null);
+            if(existing==null) return "NOT FOUND";
+
+            // Update Name
+            existing.setName(name);
+
+            // If new image selected
+            if(imageFile!=null && !imageFile.isEmpty()){
+
+                String uploadDir="uploads/categories/";
+                File folder=new File(uploadDir);
+                if(!folder.exists())folder.mkdirs();
+
+                String fileName=UUID.randomUUID()+"_"+imageFile.getOriginalFilename();
+                Path filePath=Paths.get(uploadDir+fileName);
+                Files.write(filePath,imageFile.getBytes());
+
+                String imageUrl =
+                "http://localhost:8083/uploads/categories/"+fileName;
+
+                existing.setImage(imageUrl);
+            }
+
+            categoryRepo.save(existing);
+
+        }catch(IOException e){
+            e.printStackTrace();
+        }
+
+        return "UPDATED";
     }
 
     // ---------------- GROCERY SAVE ----------------
@@ -154,22 +200,65 @@ public class adminController {
     }
 
     // ---------------- FILTERED CATEGORIES ----------------
+    
     @GetMapping("/categories")
     public List<category> showAdminCategories(
-            @RequestParam(required=false) String search,
             @RequestParam(required=false) String dateFilter,
-            @RequestParam(required=false) String startDate,
-            @RequestParam(required=false) String endDate,
-            @RequestParam(required=false,defaultValue="name") String sortBy,
-            @RequestParam(required=false,defaultValue="asc") String order){
+            @RequestParam(required=false) String order){
 
-        List<category> categories=categoryRepo.findByIsDeleteFalse();
+        List<category> categories = categoryRepo.findByIsDeleteFalse();
 
-        if(search!=null && !search.isEmpty()){
-            categories=categories.stream()
-            .filter(c->c.getName().toLowerCase()
-            .contains(search.toLowerCase()))
-            .toList();
+        LocalDate today = LocalDate.now();
+
+        // -------- DATE FILTER --------
+        if(dateFilter != null){
+
+            switch(dateFilter){
+
+                case "today":
+                    categories = categories.stream()
+                    .filter(c -> c.getCreatedDate()!=null &&
+                    c.getCreatedDate().isEqual(today))
+                    .toList();
+                    break;
+
+                case "yesterday":
+                    categories = categories.stream()
+                    .filter(c -> c.getCreatedDate()!=null &&
+                    c.getCreatedDate().isEqual(today.minusDays(1)))
+                    .toList();
+                    break;
+
+                case "thisWeek":
+                    categories = categories.stream()
+                    .filter(c -> c.getCreatedDate()!=null &&
+                    c.getCreatedDate().isAfter(today.minusDays(7)))
+                    .toList();
+                    break;
+
+                case "thisMonth":
+                    categories = categories.stream()
+                    .filter(c -> c.getCreatedDate()!=null &&
+                    c.getCreatedDate().getMonth() == today.getMonth())
+                    .toList();
+                    break;
+            }
+        }
+
+        // -------- SORT --------
+        if(order != null){
+
+            if(order.equals("asc")){
+                categories = categories.stream()
+                .sorted(Comparator.comparing(category::getName))
+                .toList();
+            }
+
+            if(order.equals("desc")){
+                categories = categories.stream()
+                .sorted(Comparator.comparing(category::getName).reversed())
+                .toList();
+            }
         }
 
         return categories;
@@ -179,6 +268,12 @@ public class adminController {
     @GetMapping("/groceries")
     public List<grocery> showAdminGroceries(){
         return groceryRepo.findByDeleteFalseAndCategoryIsDeleteFalse();
+    }
+    
+ // ---------------- PENDING ORDERS (FOR DASHBOARD) ----------------
+    @GetMapping("/pendingOrders")
+    public List<order> getPendingOrders(){
+        return orderRepo.findByStatus("Pending");
     }
 
     // ---------------- ORDERS ----------------
@@ -216,14 +311,17 @@ public class adminController {
 
     // ---------------- CONFIRM ORDER ----------------
     @PostMapping("/confirmOrder")
-    public String confirmOrder(@RequestParam Long id){
+    public ResponseEntity<String> confirmOrder(@RequestParam Long id){
 
-        order order=orderRepo.findById(id).orElse(null);
-        if(order!=null){
+        order order = orderRepo.findById(id).orElse(null);
+
+        if(order != null){
             order.setStatus("Confirmed");
             orderRepo.save(order);
+            return ResponseEntity.ok("CONFIRMED");
         }
-        return "CONFIRMED";
+
+        return ResponseEntity.badRequest().body("FAILED");
     }
 
     // ---------------- USERS ----------------
@@ -258,8 +356,11 @@ public class adminController {
 
     // ---------------- LOGOUT ----------------
     @GetMapping("/logout")
-    public String logout(HttpServletRequest request){
-        request.getSession().invalidate();
-        return "LOGOUT";
+    public ResponseEntity<?> logout(HttpServletRequest request){
+
+    request.getSession().invalidate();
+
+    return ResponseEntity.ok("LOGOUT");
+
     }
 }
